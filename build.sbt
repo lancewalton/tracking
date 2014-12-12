@@ -40,7 +40,8 @@ val libs = {
     "org.scalaz"                   %% "scalaz-core"                % scalazVersion          % "compile",
     "io.argonaut"                  %% "argonaut"                   % "6.1-M4"               % "compile",
     "org.scalaz.stream"            %% "scalaz-stream"              % "0.6a"                 % "compile",
-    "joda-time"                     % "joda-time"                  % "2.5"                  % "compile"
+    "joda-time"                     % "joda-time"                  % "2.5"                  % "compile",
+    "org.joda"                      % "joda-convert"               % "1.2"                  % "compile"
   )
 }
 
