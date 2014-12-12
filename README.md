@@ -5,6 +5,8 @@ Run tracking.Tracking
 
 The data is is the data directory.
 
+The output is report.html in the root directory.
+
 Folders in the data directory are 'projects'. The naming scheme is projectName.projectId.
 If no projectId is specified, it'll be the same as the project name. The projectId is used for inter-project dependencies.
 
