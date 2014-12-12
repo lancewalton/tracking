@@ -81,17 +81,17 @@ object Tracking extends App {
     </html>
   }
 
-  private def renderProjects(repository: Repository): NodeSeq = repository.projects.sortBy(_.identifiers.title).map(renderProject)
+  private def renderProjects(repository: Repository): NodeSeq = repository.projects.sortBy(_.identifiers.title).map(renderProject(repository, _))
 
-  private def renderProject(project: Project): Elem = {
+  private def renderProject(repository: Repository, project: Project): Elem = {
     <div>{
-      renderProjectBody(project)
+      renderProjectBody(repository, project)
     }</div>
   }
 
-  private def renderProjectBody(project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(project)
+  private def renderProjectBody(repository: Repository, project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(repository, project)
 
-  private def renderReportBody(project: Project): NodeSeq = {
+  private def renderReportBody(repository: Repository, project: Project): NodeSeq = {
     if (project.statuses.isEmpty) <h2>No data</h2>
     else {
       val sortedStatuses = project.statuses.sorted
