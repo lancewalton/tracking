@@ -3,25 +3,13 @@ package tracking
 import java.io.{ File, FileWriter }
 import scala.xml.{Elem, NodeSeq}
 import scalaz.NonEmptyList
-import tracking.model.{ Epic, Project, ProjectStatus }
+import tracking.model._
 import tracking.repository.{ ProblemLoadingProjectStatusFile, ProjectDirectoryNameParseFailure, RepositoryLoader }
-import tracking.model.Repository
-import tracking.model.DuplicateProjectName
-import tracking.model.EmptyProjectName
-import tracking.model.DuplicateProjectId
-import tracking.model.EmptyProjectId
-import tracking.model.DuplicateReportStatusDate
-import tracking.model.EmptyEpicTitle
 import scalaz.Show
 import org.joda.time.LocalDate
-import tracking.model.DuplicateEpicTitle
-import tracking.model.EmptyEpicId
-import tracking.model.DuplicateEpicId
-import tracking.model.DependencyRefersToUnknownProject
 import scalaz.Validation.FlatMap._
 import scalaz.syntax.std.list._
 import scalaz.syntax.std.option._
-import tracking.model.DependencyRefersToUnknownEpic
 
 object Tracking extends App {
   val repository = for {
@@ -138,17 +126,18 @@ object Tracking extends App {
 
   private def renderNotStartedEpics(status: ProjectStatus) = epicTable("Unstarted Epics", status.unstartedEpics)
 
-  private def renderIncompleteEpics(status: ProjectStatus) =
-    if (status.epicsInProgress.isEmpty) NodeSeq.Empty
-    else
-      <h3>Epics In Progress</h3> ++ {
-        status.epicsInProgress.map { epic =>
-          <div class="incomplete-epic-row">
-            <div class="in-progress-epic-name">{ epic.epic.title }</div>
-            <div class="in-progress-epic-completion">{ renderProgressBar(epic.completedStories, epic.storiesInProgress, epic.unstartedStories) }</div>
-          </div>
-        }
+  private def renderIncompleteEpics(status: ProjectStatus): NodeSeq =
+    status.epicsInProgress.toNel.cata(renderIncompleteEpics, NodeSeq.Empty)
+
+  private def renderIncompleteEpics(status: NonEmptyList[EpicWithStories]): NodeSeq =
+    <h3>Epics In Progress</h3> ++ {
+      status.map { epic =>
+        <div class="incomplete-epic-row">
+          <div class="in-progress-epic-name">{ epic.epic.title }</div>
+          <div class="in-progress-epic-completion">{ renderProgressBar(epic.completedStories, epic.storiesInProgress, epic.unstartedStories) }</div>
+        </div>
       }
+    }.list
 
   private def percentage(numerator: Int, denominator: Int): Int = (numerator * 100) / denominator
 }
