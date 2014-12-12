@@ -4,9 +4,7 @@ import sbt.Keys._
 
 wartremoverErrors ++= Warts.all
 
-org.scalastyle.sbt.ScalastylePlugin.Settings
-
-organization := "com.barclays"
+organization := "com.casualmiracles"
 
 name := "tracking"
 
