@@ -19,6 +19,7 @@ import tracking.model.EmptyEpicId
 import tracking.model.DuplicateEpicId
 import tracking.model.DependencyRefersToUnknownProject
 import scalaz.Validation.FlatMap._
+import tracking.model.DependencyRefersToUnknownEpic
 
 object Tracking extends App {
   val repository = for {
@@ -52,6 +53,7 @@ object Tracking extends App {
         case EmptyEpicId(project, status, epic) => s"Empty epic id in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
         case DuplicateEpicId(project, status, id) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$id'"
         case DependencyRefersToUnknownProject(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent project id '${dependency.projectId}'"
+        case DependencyRefersToUnknownEpic(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent epic id '${dependency.epicId}'. The referenced project was found, but it does not contain the referenced epic."
         case e => s"Unkown error: $e"
       }
     }.foreach { msg => println(s"\t$msg") }
