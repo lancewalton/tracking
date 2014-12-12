@@ -25,7 +25,7 @@ scalacOptions ++= Seq(
   "-encoding", "UTF-8",       // yes, this is 2 args
   "-feature",
   "-unchecked",
-  //"-Xfatal-warnings",
+  "-Xfatal-warnings",
   "-Xlint",
   "-Yno-adapted-args" ,      // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
   "-Ywarn-dead-code",        // N.B. doesn't work well with the ??? hole
