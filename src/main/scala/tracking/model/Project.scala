@@ -1,6 +1,5 @@
 package tracking.model
 
-import scalaz.Show
 import org.joda.time.LocalDate
 import scalaz.\/
 

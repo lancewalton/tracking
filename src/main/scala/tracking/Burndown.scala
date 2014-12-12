@@ -70,5 +70,5 @@ case object Burndown {
     rows.mkString(",\n").stripMargin
   }
        
-  private def twoDigits(n: Int) = new DecimalFormat("00").format(n)
+  private def twoDigits(n: Number) = new DecimalFormat("00").format(n)
 }

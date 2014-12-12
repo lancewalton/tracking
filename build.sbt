@@ -1,30 +1,8 @@
 import java.lang.System.getProperty
 import java.nio.charset.StandardCharsets.UTF_8
-import sbt.{Tests, File}
 import sbt.Keys._
-import org.sbtidea.SbtIdeaPlugin._
 
-
-wartremoverWarnings ++= Seq(
-  Wart.Any,
-  Wart.Product,
-  Wart.Serializable,
-  Wart.ListOps,
-  Wart.Nothing,
-  Wart.Null,
-  Wart.Var,
-  Wart.OptionPartial,
-  Wart.AsInstanceOf,
-  Wart.IsInstanceOf
-)
-
-wartremoverWarnings in Compile += Wart.NonUnitStatements
-
-wartremoverErrors ++= Seq(
-  Wart.Any2StringAdd,
-  Wart.EitherProjectionPartial,
-  Wart.Return
-)
+wartremoverErrors ++= Warts.all
 
 org.scalastyle.sbt.ScalastylePlugin.Settings
 
@@ -51,16 +29,15 @@ scalacOptions ++= Seq(
   "-unchecked",
   //"-Xfatal-warnings",
   "-Xlint",
-  //"-Yno-adapted-args" ,      // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
+  "-Yno-adapted-args" ,      // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
   "-Ywarn-dead-code",        // N.B. doesn't work well with the ??? hole
-  "-Ywarn-numeric-widen"
-  //"-Ywarn-value-discard"
-  //"-Xfuture"
+  "-Ywarn-numeric-widen",
+  "-Ywarn-value-discard",
+  "-Xfuture"
 )
 
 val libs = {
   val scalazVersion = "7.1.0"
-  val graphVersion = "1.9.0"
   Seq(
     "org.scalaz"                   %% "scalaz-core"                % scalazVersion          % "compile",
     "io.argonaut"                  %% "argonaut"                   % "6.1-M4"               % "compile",

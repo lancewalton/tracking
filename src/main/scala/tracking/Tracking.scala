@@ -1,10 +1,10 @@
 package tracking
 
 import java.io.{ File, FileWriter }
-import scala.xml.NodeSeq
+import scala.xml.{Elem, NodeSeq}
 import scalaz.NonEmptyList
 import tracking.model.{ Epic, Project, ProjectStatus }
-import tracking.repository.{ ProblemLoadingProjectStatusFile, ProjectDirectoryNameParseFailure, RepositoryLoadError, RepositoryLoader }
+import tracking.repository.{ ProblemLoadingProjectStatusFile, ProjectDirectoryNameParseFailure, RepositoryLoader }
 import tracking.model.Repository
 import tracking.model.DuplicateProjectName
 import tracking.model.EmptyProjectName
@@ -18,6 +18,7 @@ import tracking.model.DuplicateEpicTitle
 import tracking.model.EmptyEpicId
 import tracking.model.DuplicateEpicId
 import tracking.model.DependencyRefersToUnknownProject
+import scalaz.Validation.FlatMap._
 
 object Tracking extends App {
   val repository = for {
@@ -26,10 +27,10 @@ object Tracking extends App {
   } yield repository
   
   repository
-    .bimap(reportErrors(_), generateReport(_))
-    .foreach { saveReport(_) }
+    .bimap(reportErrors(_), generateReport)
+    .foreach { saveReport }
 
-  private def reportErrors(errors: NonEmptyList[_]) {
+  private def reportErrors(errors: NonEmptyList[_]): Unit = {
     import scalaz.syntax.show._
     
     implicit val localDateShow = new Show[LocalDate] {
@@ -56,10 +57,10 @@ object Tracking extends App {
     }.foreach { msg => println(s"\t$msg") }
   }
   
-  private def saveReport(report: NodeSeq) {
+  private def saveReport(report: NodeSeq): Unit = {
     val writer = new FileWriter("report.html")
-    writer.write(report.toString)
-    writer.close
+    writer.write(report.toString())
+    writer.close()
   }
 
   private def generateReport(repository: Repository): NodeSeq = {
@@ -73,18 +74,22 @@ object Tracking extends App {
       </head>
       <body>
         <h1>BOOST Status</h1>
-        { repository.projects.sortBy(_.identifiers.title).map(renderProject) }
+        { renderProjects(repository) }
       </body>
     </html>
   }
 
-  private def renderProject(project: Project): NodeSeq = {
+  private def renderProjects(repository: Repository): NodeSeq = repository.projects.sortBy(_.identifiers.title).map(renderProject)
+
+  private def renderProject(project: Project): Elem = {
     <div>{
-      renderTitle(project.identifiers.title) ++ renderReportBody(project)
+      renderProjectBody(project)
     }</div>
   }
 
-  private def renderReportBody(project: Project) = {
+  private def renderProjectBody(project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(project)
+
+  private def renderReportBody(project: Project): NodeSeq = {
     if (project.statuses.isEmpty) <h2>No data</h2>
     else {
       val sortedStatuses = project.statuses.sorted
@@ -101,7 +106,7 @@ object Tracking extends App {
         <div class="unstarted-epics-list">{ renderNotStartedEpics(status) }</div>
       </div>
 
-  private def renderTitle(title: String) = <h2>{ title }</h2>
+  private def renderTitle(title: String): Elem = <h2>{ title }</h2>
 
   private def renderEpicProgressBar(status: ProjectStatus) =
     renderProgressBar(status.completedEpics.size, status.epicsInProgress.size, status.unstartedEpics.size)

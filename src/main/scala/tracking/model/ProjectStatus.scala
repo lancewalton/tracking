@@ -5,8 +5,8 @@ import scalaz.syntax.equal._
 import scalaz.std.string._
 import scalaz.{\/, -\/, \/-}
 
-case class ProjectStatus(date: LocalDate, completedEpics: List[Epic], unstartedEpics: List[Epic], epicsInProgress: List[EpicWithStories], dependencies: List[Dependency] = Nil) {
-  def epicsInProject = (completedEpics ::: unstartedEpics ::: epicsInProgress.map(_.epic))
+case class ProjectStatus(date: LocalDate, completedEpics: List[Epic], unstartedEpics: List[Epic], epicsInProgress: List[EpicWithStories], dependencies: List[Dependency]) {
+  def epicsInProject = completedEpics ::: unstartedEpics ::: epicsInProgress.map(_.epic)
   
   def findEpic(id: EpicId): Option[\/[Epic, EpicWithStories]] =
     (completedEpics ::: unstartedEpics).find(_.id === id).map(-\/(_)) orElse epicsInProgress.find(_.epic.id === id).map(\/-(_))
