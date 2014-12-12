@@ -3,7 +3,7 @@ package tracking.model
 import org.joda.time.LocalDate
 import scalaz.syntax.equal._
 import scalaz.std.string._
-import scalaz.{\/, -\/, \/-}
+import scalaz.{Order, \/, -\/, \/-}
 
 case class ProjectStatus(date: LocalDate, completedEpics: List[Epic], unstartedEpics: List[Epic], epicsInProgress: List[EpicWithStories], dependencies: List[Dependency]) {
   def epicsInProject = completedEpics ::: unstartedEpics ::: epicsInProgress.map(_.epic)
@@ -16,4 +16,6 @@ object ProjectStatus {
   implicit object DefaultOrdering extends Ordering[ProjectStatus] {
     def compare(x: ProjectStatus, y: ProjectStatus) = x.date.compareTo(y.date)
   }
+
+  implicit val projectStatusOrdering: Order[ProjectStatus] = scalaz.Order.fromScalaOrdering(DefaultOrdering)
 }

@@ -19,6 +19,8 @@ import tracking.model.EmptyEpicId
 import tracking.model.DuplicateEpicId
 import tracking.model.DependencyRefersToUnknownProject
 import scalaz.Validation.FlatMap._
+import scalaz.syntax.std.list._
+import scalaz.syntax.std.option._
 import tracking.model.DependencyRefersToUnknownEpic
 
 object Tracking extends App {
@@ -89,18 +91,17 @@ object Tracking extends App {
     }</div>
   }
 
-  private def renderProjectBody(repository: Repository, project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(repository, project)
+  private def renderProjectBody(repository: Repository, project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(project)
 
-  private def renderReportBody(repository: Repository, project: Project): NodeSeq = {
-    if (project.statuses.isEmpty) <h2>No data</h2>
-    else {
-      val sortedStatuses = project.statuses.sorted
-      sortedStatuses.reverse.headOption.map(renderStatus(_)).getOrElse(NodeSeq.Empty) ++
-        Burndown(sortedStatuses)
-    }
+  private def renderReportBody(project: Project): NodeSeq =
+    project.statuses.toNel.cata(renderReportBody, <h2>No data</h2>)
+
+  private def renderReportBody(statuses: NonEmptyList[ProjectStatus]): NodeSeq = {
+    val sortedStatuses = statuses.sorted
+    renderStatus(sortedStatuses.head) ++ Burndown(sortedStatuses)
   }
 
-  private def renderStatus(status: ProjectStatus) =
+  private def renderStatus(status: ProjectStatus): NodeSeq =
     renderEpicProgressBar(status) ++
       <div class="all-epics">
         <div class="completed-epics-list">{ renderCompletedEpics(status) }</div>
