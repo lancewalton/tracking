@@ -30,7 +30,7 @@ object Tracking extends App {
   } yield repository
   
   repository
-    .bimap(reportErrors(_), generateReport)
+    .bimap(reportErrors, generateReport)
     .foreach { saveReport }
 
   private def reportErrors(errors: NonEmptyList[_]): Unit = {
@@ -42,22 +42,20 @@ object Tracking extends App {
     
     println("Can't produce the report because of errors while loading the data:")
     errors.map {
-      _ match {
-        case ProjectDirectoryNameParseFailure(directory)       => s"Can't parse project directory name '${directory.getName}' found at ${directory.getAbsolutePath}. Need <name> or <name>.<id>"
-        case ProblemLoadingProjectStatusFile(file, parseError) => s"Can't load project status file ${file.getAbsolutePath}: $parseError"
-        case DuplicateProjectName(name) => s"Duplicate project name: '$name'"
-        case EmptyProjectName => "Empty project name"
-        case DuplicateProjectId(id) => s"Duplicate project id: '$id'"
-        case EmptyProjectId => "Empty project id"
-        case DuplicateReportStatusDate(project, date) => s"Duplicate report status date in project ${project.identifiers.show}: ${date.show}"
-        case EmptyEpicTitle(project, status, epic) => s"Empty epic title in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
-        case DuplicateEpicTitle(project, status, title) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$title'"
-        case EmptyEpicId(project, status, epic) => s"Empty epic id in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
-        case DuplicateEpicId(project, status, id) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$id'"
-        case DependencyRefersToUnknownProject(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent project id '${dependency.projectId}'"
-        case DependencyRefersToUnknownEpic(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent epic id '${dependency.epicId}'. The referenced project was found, but it does not contain the referenced epic."
-        case e => s"Unkown error: $e"
-      }
+      case ProjectDirectoryNameParseFailure(directory) => s"Can't parse project directory name '${directory.getName}' found at ${directory.getAbsolutePath}. Need <name> or <name>.<id>"
+      case ProblemLoadingProjectStatusFile(file, parseError) => s"Can't load project status file ${file.getAbsolutePath}: $parseError"
+      case DuplicateProjectName(name) => s"Duplicate project name: '$name'"
+      case EmptyProjectName => "Empty project name"
+      case DuplicateProjectId(id) => s"Duplicate project id: '$id'"
+      case EmptyProjectId => "Empty project id"
+      case DuplicateReportStatusDate(project, date) => s"Duplicate report status date in project ${project.identifiers.show}: ${date.show}"
+      case EmptyEpicTitle(project, status, epic) => s"Empty epic title in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
+      case DuplicateEpicTitle(project, status, title) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$title'"
+      case EmptyEpicId(project, status, epic) => s"Empty epic id in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
+      case DuplicateEpicId(project, status, id) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$id'"
+      case DependencyRefersToUnknownProject(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent project id '${dependency.projectId}'"
+      case DependencyRefersToUnknownEpic(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent epic id '${dependency.epicId}'. The referenced project was found, but it does not contain the referenced epic."
+      case e => s"Unknown error: $e"
     }.foreach { msg => println(s"\t$msg") }
   }
   
@@ -83,15 +81,14 @@ object Tracking extends App {
     </html>
   }
 
-  private def renderProjects(repository: Repository): NodeSeq = repository.projects.sortBy(_.identifiers.title).map(renderProject(repository, _))
+  private def renderProjects(repository: Repository): NodeSeq =
+    repository.projects.sortBy(_.identifiers.title).map(renderProject(repository, _))
 
-  private def renderProject(repository: Repository, project: Project): Elem = {
-    <div>{
-      renderProjectBody(repository, project)
-    }</div>
-  }
+  private def renderProject(repository: Repository, project: Project): Elem =
+    <div>{renderProjectBody(repository, project)}</div>
 
-  private def renderProjectBody(repository: Repository, project: Project): NodeSeq = renderTitle(project.identifiers.title) ++ renderReportBody(project)
+  private def renderProjectBody(repository: Repository, project: Project): NodeSeq =
+    renderTitle(project.identifiers.title) ++ renderReportBody(project)
 
   private def renderReportBody(project: Project): NodeSeq =
     project.statuses.toNel.cata(renderReportBody, <h2>No data</h2>)
@@ -121,13 +118,13 @@ object Tracking extends App {
     val unstartedPercentage = 100 - completedPercentage - inProgressPercentage
 
     <div class="progress">
-      <div class="progress-bar progress-bar-success" style={ s"width: ${completedPercentage}%" }>
+      <div class="progress-bar progress-bar-success" style={ s"width: $completedPercentage%" }>
         <span>Completed</span>
       </div>
-      <div class="progress-bar progress-bar-warning progress-bar" style={ s"width: ${inProgressPercentage}%}" }>
+      <div class="progress-bar progress-bar-warning progress-bar" style={ s"width: $inProgressPercentage%}" }>
         <span>In Progress</span>
       </div>
-      <div class="progress-bar progress-bar-danger" style={ s"width: ${unstartedPercentage}%" }>
+      <div class="progress-bar progress-bar-danger" style={ s"width: $unstartedPercentage%" }>
         <span>Not Started</span>
       </div>
     </div>
