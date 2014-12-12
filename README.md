@@ -5,8 +5,8 @@ Run tracking.Tracking
 
 The data is is the data directory.
 
-Folders in the data directory are 'projects'. The naming scheme is <project name>[.<project id>].
-If no project id is specified, it'll be the same as the project name. The project id is used for inter-project dependencies.
+Folders in the data directory are 'projects'. The naming scheme is projectName.projectId.
+If no projectId is specified, it'll be the same as the project name. The projectId is used for inter-project dependencies.
 
 In each project directory there are 'status' files. Each file is the project status on a particular date.
 
