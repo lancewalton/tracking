@@ -14,5 +14,5 @@ In each project directory there are 'status' files. Each file is the project sta
 
 When tracking.Tracking is run, it'll load up all the statuses for all projects, do some basic validation, and then produce a
 single HTML file with a section per project. each section will show the project completion, epics not started, completed and
-in progress, a burndown chart and (still to do) the relationships between projects and the degree of completion o things each project
+in progress, a burndown chart and (still to do) the relationships between projects and the degree of completion of things each project
 depends on, from the point of view of that project.
