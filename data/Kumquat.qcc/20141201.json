@@ -1,0 +1,41 @@
+{
+  "date" : {
+    "year" : 2014,
+    "month" : 12,
+    "day" : 1
+  },
+  "completed_epics" : [
+    {
+      "id" : "swq",
+      "title" : "Show Work Queue"
+    }
+  ],
+  "epics_in_progress" : [
+    {
+      "epic" : {
+        "id" : "auwi",
+        "title" : "Assign and Unassign Work Item"
+      },
+      "completed_stories" : 1,
+      "unstarted_stories" : 1,
+      "stories_in_progress" : 1
+    }
+  ],
+  "unstarted_epics" : [
+    {
+      "id" : "pawi",
+      "title" : "Operator Processes a Work Item"
+    },
+    {
+      "id" : "cawi",
+      "title" : "Operator Closes A Work Item"
+    },
+    {
+      "id" : "psfm",
+      "title" : "Produce Stats for Muscadine"
+    }
+  ],
+  "dependencies" : [
+    
+  ]
+}

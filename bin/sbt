@@ -1,0 +1,3 @@
+#!/bin/bash
+
+bin/sbt-extras -J-Dfile.encoding=UTF-8 -J-Drun.mode=production -J-Dboost.config=local -J-Xss4m -J-Xmx2500m -J-XX:MaxPermSize=512m "$@"

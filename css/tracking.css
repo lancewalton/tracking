@@ -1,0 +1,49 @@
+body {
+  margin: 20px;
+}
+
+div.all-epics {
+  width: 100%;
+}
+
+div.all-epics div {
+  float: left;
+}
+
+div.completed-epics-list {
+  width: 25%;
+  margin-right: 5%;
+}
+
+div.unstarted-epics-list {
+  width: 25%;
+}
+
+div.incomplete-epics-list {
+  width: 40%;
+  margin-right: 5%
+}
+
+div.incomplete-epic-row {
+  width: 100%;
+}
+
+div.in-progress-epic-name {
+  width: 40%;
+}
+
+div.in-progress-epic-completion {
+  width: 60%;
+}
+
+div.in-progress-epic-completion div.progress{
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+div.burndown {
+  clear: both;
+  width: 50%;
+  margin-left: 25%;
+  height: 500px;
+}
