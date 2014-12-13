@@ -2,7 +2,7 @@
   "date" : {
     "year" : 2014,
     "month" : 12,
-    "day" : 3
+    "day" : 2
   },
   "epics" : [
     {
@@ -18,7 +18,7 @@
         "id" : "bar",
         "title" : "Do the bar"
       },
-      "status" : "Complete",
+      "status" : "In Progress",
       "composition" : {
         "completedStores" : 1,
         "unstartedStories" : 2,

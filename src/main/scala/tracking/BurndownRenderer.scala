@@ -1,21 +1,20 @@
+
 package tracking
 
 import java.text.DecimalFormat
 import java.util.UUID
-
 import scala.xml.Unparsed
-
 import tracking.model.ProjectStatus
-
-import scalaz.NonEmptyList
+import tracking.model.NotStarted
+import tracking.model.InProgress
 
 case object Burndown {
-  def apply(data: NonEmptyList[ProjectStatus]) = {
+  def apply(data: List[ProjectStatus]) = {
     val id = UUID.randomUUID.toString
     <div id={id} class="burndown"/> ++ <script>{new Unparsed(makeDatesChart(id, data))}</script>
   }
 
-  private def makeDatesChart(id: String, data: NonEmptyList[ProjectStatus]) =
+  private def makeDatesChart(id: String, data: List[ProjectStatus]) =
     s"""|var chart = AmCharts.makeChart("$id", {
        |  "type": "serial",
        |  "theme": "none",
@@ -59,17 +58,17 @@ case object Burndown {
        |  legend: {}
        |});""".stripMargin
         
-  private def dateData(data: NonEmptyList[ProjectStatus]): String = {
+  private def dateData(data: List[ProjectStatus]): String = {    
     val sortedData = data.sorted
     
     val rows = for {
       status <- sortedData
     } yield s"""|{
                |  "date": "${status.date.getYear}-${twoDigits(status.date.getMonthOfYear)}-${twoDigits(status.date.getDayOfMonth)}",
-               |  "burndown": ${status.unstartedEpics.size + status.epicsInProgress.size},
+               |  "burndown": ${status.epicsWithStatus(NotStarted).size + status.epicsWithStatus(InProgress).size},
             |}"""
                
-    rows.list.mkString(",\n").stripMargin
+    rows.mkString(",\n").stripMargin
   }
        
   private def twoDigits(n: Number) = new DecimalFormat("00").format(n)

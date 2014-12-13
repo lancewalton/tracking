@@ -4,38 +4,37 @@
     "month" : 12,
     "day" : 1
   },
-  "completed_epics" : [
+  "epics" : [
     {
-      "id" : "swq",
-      "title" : "Show Work Queue"
-    }
-  ],
-  "epics_in_progress" : [
-    {
-      "epic" : {
-        "id" : "auwi",
-        "title" : "Assign and Unassign Work Item"
+      "identifiers" : {
+        "id" : "foo",
+        "title" : "Do the foo"
       },
-      "completed_stories" : 1,
-      "unstarted_stories" : 1,
-      "stories_in_progress" : 1
-    }
-  ],
-  "unstarted_epics" : [
-    {
-      "id" : "pawi",
-      "title" : "Operator Processes a Work Item"
+      "status" : "Not Started",
+      "composition" : null
     },
     {
-      "id" : "cawi",
-      "title" : "Operator Closes A Work Item"
+      "identifiers" : {
+        "id" : "bar",
+        "title" : "Do the bar"
+      },
+      "status" : "Not Started",
+      "composition" : {
+        "completedStores" : 1,
+        "unstartedStories" : 2,
+        "storiesInProgress" : 3
+      }
     },
     {
-      "id" : "psfm",
-      "title" : "Produce Stats for Muscadine"
+      "identifiers" : {
+        "id" : "baz",
+        "title" : "Do the baz"
+      },
+      "status" : "Not Started",
+      "composition" : null
     }
   ],
   "dependencies" : [
-    
+
   ]
 }

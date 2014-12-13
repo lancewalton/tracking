@@ -9,7 +9,16 @@ import org.joda.time.LocalDate
 import scalaz.Validation.FlatMap._
 import scalaz.syntax.std.list._
 import scalaz.syntax.std.option._
-
+import tracking.model.Complete
+import tracking.model.InProgress
+import tracking.model.NotStarted
+import tracking.model.IdentifierAndTitle
+import tracking.model.Dependency
+import tracking.model.EpicComposition
+  import argonaut._
+  import Argonaut._
+  import tracking.repository._
+  
 object Tracking extends App {
   val repository: Validation[NonEmptyList[Object], Repository] =
     for {
@@ -35,9 +44,9 @@ object Tracking extends App {
       case DuplicateProjectId(id) => s"Duplicate project id: '$id'"
       case EmptyProjectId => "Empty project id"
       case DuplicateReportStatusDate(project, date) => s"Duplicate report status date in project ${project.identifiers.show}: ${date.show}"
-      case EmptyEpicTitle(project, status, epic) => s"Empty epic title in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
+        case EmptyEpicTitle(project, status, epic) => s"Empty epic title in project ${project.identifiers.show}, status ${status.date.show}: ${epic.identifiers.show}"
       case DuplicateEpicTitle(project, status, title) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$title'"
-      case EmptyEpicId(project, status, epic) => s"Empty epic id in project ${project.identifiers.show}, status ${status.date.show}: ${epic.show}"
+        case EmptyEpicId(project, status, epic) => s"Empty epic id in project ${project.identifiers.show}, status ${status.date.show}: ${epic.identifiers.show}"
       case DuplicateEpicId(project, status, id) => s"Duplicate epic title in project ${project.identifiers.show}, status ${status.date.show}: '$id'"
       case DependencyRefersToUnknownProject(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent project id '${dependency.projectId}'"
       case DependencyRefersToUnknownEpic(project, status, dependency) => s"Dependency ${dependency.show} in status ${status.date.show} of project ${project.identifiers.show} refers to non-existent epic id '${dependency.epicId}'. The referenced project was found, but it does not contain the referenced epic."
@@ -104,7 +113,7 @@ object Tracking extends App {
   </h2>
 
   private def renderEpicProgressBar(status: ProjectStatus) =
-    renderProgressBar(status.completedEpics.size, status.epicsInProgress.size, status.unstartedEpics.size)
+    renderProgressBar(status.epicsWithStatus(Complete).size,status.epicsWithStatus(InProgress).size, status.epicsWithStatus(NotStarted).size)
 
   private def renderProgressBar(completed: Int, inProgress: Int, notStarted: Int) = {
     val total = completed + inProgress + notStarted
@@ -133,17 +142,17 @@ object Tracking extends App {
       {name}
     </h3> ++ {
       epics.list.map { epic => <div>
-        {epic.title}
+        {epic.identifiers.title}
       </div>
       }
     }
 
-  private def renderCompletedEpics(status: ProjectStatus) = epicTable("Completed Epics", status.completedEpics)
+  private def renderCompletedEpics(status: ProjectStatus) = epicTable("Completed Epics", status.epicsWithStatus(Complete))
 
-  private def renderNotStartedEpics(status: ProjectStatus) = epicTable("Unstarted Epics", status.unstartedEpics)
+  private def renderNotStartedEpics(status: ProjectStatus) = epicTable("Unstarted Epics", status.epicsWithStatus(NotStarted))
 
   private def renderIncompleteEpics(status: ProjectStatus): NodeSeq =
-    status.epicsInProgress.toNel.cata(renderIncompleteEpics, NodeSeq.Empty)
+    status.epicsWithStatus(InProgress).toNel.cata(renderIncompleteEpics, NodeSeq.Empty)
 
   private def renderIncompleteEpics(status: NonEmptyList[EpicWithStories]): NodeSeq =
     <h3>Epics In Progress</h3> ++ {
@@ -153,7 +162,7 @@ object Tracking extends App {
             {epic.epic.title}
           </div>
           <div class="in-progress-epic-completion">
-            {renderProgressBar(epic.completedStories, epic.storiesInProgress, epic.unstartedStories)}
+            { renderProgressBar(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
           </div>
         </div>
       }
