@@ -154,12 +154,12 @@ object Tracking extends App {
   private def renderIncompleteEpics(status: ProjectStatus): NodeSeq =
     status.epicsWithStatus(InProgress).toNel.cata(renderIncompleteEpics, NodeSeq.Empty)
 
-  private def renderIncompleteEpics(status: NonEmptyList[EpicWithStories]): NodeSeq =
+  private def renderIncompleteEpics(status: NonEmptyList[Epic]): NodeSeq =
     <h3>Epics In Progress</h3> ++ {
       status.map { epic =>
         <div class="incomplete-epic-row">
           <div class="in-progress-epic-name">
-            {epic.epic.title}
+            {epic.identifiers.title}
           </div>
           <div class="in-progress-epic-completion">
             { renderProgressBar(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }

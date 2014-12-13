@@ -29,8 +29,8 @@ object Repository {
       (project.statuses >>= validateProjectStatus(project))
     
   private def validateProjectStatus(project: Project)(status: ProjectStatus): List[RepositoryError] =
-    validateUniqueAndNonEmptyString(status.epics, (_: Epic).title, (n: String) => DuplicateEpicTitle(project, status, n), EmptyEpicTitle(project, status, _: Epic)) :::
-    validateUniqueAndNonEmptyString(status.epics, (_: Epic).id, (n: String) => DuplicateEpicId(project, status, n), EmptyEpicId(project, status, _: Epic))
+    validateUniqueAndNonEmptyString(status.epics, (_: Epic).identifiers.title, (n: String) => DuplicateEpicTitle(project, status, n), EmptyEpicTitle(project, status, _: Epic)) :::
+    validateUniqueAndNonEmptyString(status.epics, (_: Epic).identifiers.id, (n: String) => DuplicateEpicId(project, status, n), EmptyEpicId(project, status, _: Epic))
     
   private def validateDependencies(projects: List[Project]): List[RepositoryError] =
     for {
