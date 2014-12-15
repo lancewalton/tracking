@@ -13,5 +13,5 @@ case class EmptyEpicTitle(project: Project, projectStatus: ProjectStatus, epic: 
 case class DuplicateEpicTitle(project: Project, projectStatus: ProjectStatus, name: String) extends RepositoryError
 case class EmptyEpicId(project: Project, projectStatus: ProjectStatus, epic: Epic) extends RepositoryError
 case class DuplicateEpicId(project: Project, projectStatus: ProjectStatus, id: String) extends RepositoryError
-case class DependencyRefersToUnknownProject(project: Project, status: ProjectStatus, dependency: Dependency) extends RepositoryError
-case class DependencyRefersToUnknownEpic(project: Project, status: ProjectStatus, dependency: Dependency) extends RepositoryError
+case class DependencyRefersToUnknownProject(project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency) extends RepositoryError
+case class DependencyRefersToUnknownEpic(project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency) extends RepositoryError

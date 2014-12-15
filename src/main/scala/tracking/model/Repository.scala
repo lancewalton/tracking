@@ -36,20 +36,21 @@ object Repository {
     for {
       project <- projects
       status <- project.statuses
-      dependency <- status.dependencies
-      validation <- validateDependency(projects, project, status, dependency)
+      epic <- status.epics
+      dependency <- epic.dependencies
+      validation <- validateDependency(projects, project, status, epic, dependency)
     } yield validation
     
-  private def validateDependency(projects: List[Project], project: Project, status: ProjectStatus, dependency: Dependency): Option[RepositoryError] =
+  private def validateDependency(projects: List[Project], project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency): Option[RepositoryError] =
     for {
       p ← projects.find(_.identifiers.id === dependency.projectId)
-      v ← validateDependency(project, status, dependency, p).orElse(Option(DependencyRefersToUnknownProject(project, status, dependency)))
+      v ← validateDependency(project, status, epic, dependency, p).orElse(Option(DependencyRefersToUnknownProject(project, status, epic, dependency)))
     } yield v
 
-  private def validateDependency(project: Project, status: ProjectStatus, dependency: Dependency, projectDependedUpon: Project): Option[RepositoryError] =
+  private def validateDependency(project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency, projectDependedUpon: Project): Option[RepositoryError] =
     project
       .findEpic(status.date, dependency.epicId)
-      .fold(Option(DependencyRefersToUnknownEpic(project, status, dependency)))(_ => None)
+      .fold(Option(DependencyRefersToUnknownEpic(project, status, epic, dependency)))(_ => None)
 
   private def validateUniqueAndNonEmptyString[C](collection: List[C], extractor: C => String, duplicateError: String => RepositoryError, emptyError: C => RepositoryError): List[RepositoryError] =
     validateAttributeIsUnique(collection, extractor, duplicateError) ::: validateStringAttributesAreNonEmpty(collection, extractor, emptyError).toList

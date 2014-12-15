@@ -11,7 +11,10 @@
         "title" : "Do the foo"
       },
       "status" : "Not Started",
-      "composition" : null
+      "composition" : null,
+      "dependencies" : [
+
+      ]
     },
     {
       "identifiers" : {
@@ -23,7 +26,10 @@
         "completedStores" : 1,
         "unstartedStories" : 2,
         "storiesInProgress" : 3
-      }
+      },
+      "dependencies" : [
+
+      ]
     },
     {
       "identifiers" : {
@@ -31,10 +37,10 @@
         "title" : "Do the baz"
       },
       "status" : "Not Started",
-      "composition" : null
-    }
-  ],
-  "dependencies" : [
+      "composition" : null,
+      "dependencies" : [
 
+      ]
+    }
   ]
 }

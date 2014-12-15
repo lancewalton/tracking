@@ -5,7 +5,7 @@ import scalaz.syntax.equal._
 import scalaz.std.string._
 import scalaz.{Order, \/, -\/, \/-}
 
-case class ProjectStatus(date: LocalDate, epics: List[Epic], dependencies: List[Dependency]) {
+case class ProjectStatus(date: LocalDate, epics: List[Epic]) {
   def findEpic(id: EpicId): Option[Epic] = epics.find(_.identifiers.id === id)
   def epicsWithStatus(status: EpicStatus) = epics.filter(_.status === status)
 }
