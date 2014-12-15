@@ -1,20 +1,17 @@
 package tracking
 
 import java.io.{ File, FileWriter }
-
 import scala.xml.{ Elem, NodeSeq }
 import scala.xml.NodeSeq.seqToNodeSeq
-
 import scalaz.{ NonEmptyList, Show, Validation }
 import scalaz.Validation.FlatMap.ValidationFlatMapRequested
 import scalaz.syntax.show.ToShowOps
 import scalaz.syntax.std.list.ToListOpsFromList
 import scalaz.syntax.std.option.ToOptionOpsFromOption
-
 import org.joda.time.LocalDate
-
 import tracking.model.{ Complete, DependencyRefersToUnknownEpic, DependencyRefersToUnknownProject, DuplicateEpicId, DuplicateEpicTitle, DuplicateProjectId, DuplicateProjectName, DuplicateReportStatusDate, EmptyEpicId, EmptyEpicTitle, EmptyProjectId, EmptyProjectName, Epic, InProgress, NotStarted, Project, ProjectStatus, Repository }
 import tracking.repository.{ ProblemLoadingProjectStatusFile, ProjectDirectoryNameParseFailure, RepositoryLoader }
+import tracking.render.BurndownRenderer
 
 object Tracking extends App {
   val repository: Validation[NonEmptyList[Object], Repository] =
@@ -88,7 +85,7 @@ object Tracking extends App {
 
   private def renderReportBody(statuses: NonEmptyList[ProjectStatus]): NodeSeq = {
     val sortedStatuses = statuses.sorted.reverse
-    renderStatus(sortedStatuses.head) ++ Burndown(sortedStatuses)
+    renderStatus(sortedStatuses.head) ++ BurndownRenderer(sortedStatuses)
   }
 
   private def renderStatus(status: ProjectStatus): NodeSeq =

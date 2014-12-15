@@ -1,5 +1,4 @@
-
-package tracking
+package tracking.render
 
 import java.text.DecimalFormat
 import java.util.UUID
@@ -10,7 +9,7 @@ import tracking.model.InProgress
 
 import scalaz.NonEmptyList
 
-case object Burndown {
+case object BurndownRenderer {
   def apply(data: NonEmptyList[ProjectStatus]) = {
     val id = UUID.randomUUID.toString
     <div id={id} class="burndown"/> ++ <script>{new Unparsed(makeDatesChart(id, data))}</script>
