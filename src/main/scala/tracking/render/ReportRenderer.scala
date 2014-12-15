@@ -63,26 +63,7 @@ object ReportRenderer {
                                                  </h2>
 
   private def renderEpicProgressBar(status: ProjectStatus) =
-    renderProgressBar(status.epicsWithStatus(Complete).size, status.epicsWithStatus(InProgress).size, status.epicsWithStatus(NotStarted).size)
-
-  private def renderProgressBar(completed: Int, inProgress: Int, notStarted: Int) = {
-    val total = completed + inProgress + notStarted
-    val completedPercentage = percentage(completed, total)
-    val inProgressPercentage = percentage(inProgress, total)
-    val unstartedPercentage = 100 - completedPercentage - inProgressPercentage
-
-    <div class="progress">
-      <div class="progress-bar progress-bar-success" style={ s"width: $completedPercentage%" }>
-        <span>Completed</span>
-      </div>
-      <div class="progress-bar progress-bar-warning progress-bar" style={ s"width: $inProgressPercentage%}" }>
-        <span>In Progress</span>
-      </div>
-      <div class="progress-bar progress-bar-danger" style={ s"width: $unstartedPercentage%" }>
-        <span>Not Started</span>
-      </div>
-    </div>
-  }
+    ProgressBarRenderer(status.epicsWithStatus(Complete).size, status.epicsWithStatus(InProgress).size, status.epicsWithStatus(NotStarted).size)
 
   private def epicTable(name: String, epics: List[Epic]): NodeSeq =
     epics.toNel.cata(epicTable(name, _), NodeSeq.Empty)
@@ -113,11 +94,9 @@ object ReportRenderer {
             { epic.identifiers.title }
           </div>
           <div class="in-progress-epic-completion">
-            { renderProgressBar(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
+            { ProgressBarRenderer(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
           </div>
         </div>
       }
     }.list
-
-  private def percentage(numerator: Int, denominator: Int): Int = (numerator * 100) / denominator
 }
