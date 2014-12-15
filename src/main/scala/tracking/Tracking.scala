@@ -21,7 +21,7 @@ object Tracking extends App {
       repository <- Repository.createValid(projects)
     } yield repository
 
-  repository bimap (reportErrors, ReportRenderer.apply) foreach saveReport
+  repository bimap (reportErrors, ReportRenderer(_).render) foreach saveReport
 
   private def reportErrors(errors: NonEmptyList[_]): Unit = {
     import scalaz.syntax.show._

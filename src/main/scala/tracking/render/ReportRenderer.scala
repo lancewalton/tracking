@@ -9,8 +9,8 @@ import scalaz.syntax.std.option._
 
 import tracking.model.{Complete, Epic, InProgress, NotStarted, Project, ProjectStatus, Repository}
 
-object ReportRenderer {
-  def apply(repository: Repository): NodeSeq = {
+case class ReportRenderer(repository: Repository) {
+  def render: NodeSeq = {
     <html>
       <head>
         <link href="libs/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
@@ -20,20 +20,20 @@ object ReportRenderer {
         <script type="text/javascript" src="libs/amcharts/themes/chalk.js"></script>
       </head>
       <body>
-        <h1>BOOST Status</h1>{ renderProjects(repository) }
+        <h1>BOOST Status</h1>{ renderProjects }
       </body>
     </html>
   }
 
-  private def renderProjects(repository: Repository): NodeSeq =
+  private def renderProjects: NodeSeq =
     repository.projects.sortBy(_.identifiers.title).map(renderProject(repository, _))
 
   private def renderProject(repository: Repository, project: Project): Elem =
     <div>
-      { renderProjectBody(repository, project) }
+      { renderProjectBody(project) }
     </div>
 
-  private def renderProjectBody(repository: Repository, project: Project): NodeSeq =
+  private def renderProjectBody(project: Project): NodeSeq =
     renderTitle(project.identifiers.title) ++ renderReportBody(project)
 
   private def renderReportBody(project: Project): NodeSeq =
