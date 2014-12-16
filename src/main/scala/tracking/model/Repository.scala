@@ -9,7 +9,25 @@ import scalaz.syntax.equal._
 import scalaz.syntax.monad._
 import scalaz.syntax.validation._
 
-case class Repository(projects: List[Project])
+case class Repository(projects: List[Project]) {
+  def dates = projects.flatMap { _.statuses.map { _.date } }
+  
+  def project(id: ProjectId): Option[Project] = projects.find(_.identifiers.id === id)
+  
+  def reachableEpics(project: Project, date: LocalDate): Set[(Project, Epic)] =
+    (for {
+      status <- project.status(date).toList
+      e <- status.epics
+      de = e.dependencies.flatMap(d => reachableEpics(d, date))
+    } yield (project, e) :: de).flatten.toSet
+  
+  private def reachableEpics(dependency: Dependency, date: LocalDate): Set[(Project, Epic)] =
+    (for {
+      p <- project(dependency.projectId).toList
+      e <- p.findEpic(date, dependency.epicId)
+      de = e.dependencies.flatMap(d => reachableEpics(d, date))
+    } yield (p, e) :: de).flatten.toSet
+}
 
 object Repository {
   def createValid(projects: List[Project]): RepositoryValidation[Repository] =
@@ -42,13 +60,13 @@ object Repository {
     } yield validation
     
   private def validateDependency(projects: List[Project], project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency): Option[RepositoryError] =
-    for {
-      p ← projects.find(_.identifiers.id === dependency.projectId)
-      v ← validateDependency(project, status, epic, dependency, p).orElse(Option(DependencyRefersToUnknownProject(project, status, epic, dependency)))
-    } yield v
+    projects.find(_.identifiers.id === dependency.projectId)
+      .fold(Option(DependencyRefersToUnknownProject(project, status, epic, dependency).asInstanceOf[RepositoryError])) { p =>
+        validateDependency(project, status, epic, dependency, p)
+      }
 
   private def validateDependency(project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency, projectDependedUpon: Project): Option[RepositoryError] =
-    project
+    projectDependedUpon
       .findEpic(status.date, dependency.epicId)
       .fold(Option(DependencyRefersToUnknownEpic(project, status, epic, dependency)))(_ => None)
 

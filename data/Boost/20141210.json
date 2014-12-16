@@ -1,0 +1,53 @@
+{
+  "date" : {
+    "year" : 2014,
+    "month" : 12,
+    "day" : 1
+  },
+  "epics" : [
+        {
+      "identifiers" : {
+        "id" : "cop",
+        "title" : "Create an opportunity"
+      },
+      "status" : "Not Started",
+      "composition" : null,
+      "dependencies" : [
+
+      ]
+    },
+    {
+      "identifiers" : {
+        "id" : "fipq",
+        "title" : "Fill in the prospect questionnaire"
+      },
+      "status" : "Not Started",
+      "composition" : null,
+      "dependencies" : [
+
+      ]
+    },
+    {
+      "identifiers" : {
+        "id" : "submit",
+        "title" : "Submit the opportunity"
+      },
+      "status" : "Not Started",
+      "composition" : {
+        "completedStores" : 1,
+        "unstartedStories" : 2,
+        "storiesInProgress" : 3
+      },
+      "dependencies" : [
+        {
+          "projectId" : "qcc",
+          "epicId" : "foo"
+        },
+        {
+          "projectId" : "qcc",
+          "epicId" : "bar"
+        }
+      ]
+    }
+  ]
+}

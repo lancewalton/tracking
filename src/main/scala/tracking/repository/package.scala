@@ -34,7 +34,7 @@ package object repository {
     
   implicit def epicCompositionCodec = casecodec3(EpicComposition.apply, EpicComposition.unapply)("completedStores", "unstartedStories", "storiesInProgress")
 
-  implicit def dependencyCodec = casecodec2(Dependency.apply, Dependency.unapply)("project", "epicId")
+  implicit def dependencyCodec = casecodec2(Dependency.apply, Dependency.unapply)("projectId", "epicId")
 
   implicit def epicCodec = casecodec4(Epic.apply, Epic.unapply)("identifiers", "status", "composition", "dependencies")
 
