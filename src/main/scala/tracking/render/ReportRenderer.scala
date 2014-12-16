@@ -1,14 +1,17 @@
 package tracking.render
 
-import scala.xml.{Elem, NodeSeq}
+import scala.annotation.migration
+import scala.xml.{ Elem, NodeSeq }
 import scala.xml.NodeSeq.seqToNodeSeq
+
 import scalaz.NonEmptyList
-import scalaz.syntax.std.list._
-import scalaz.syntax.std.option._
-import tracking.model.{Complete, Epic, InProgress, NotStarted, Project, ProjectStatus, Repository}
+import scalaz.syntax.equal.ToEqualOps
+import scalaz.syntax.std.list.ToListOpsFromList
+import scalaz.syntax.std.option.ToOptionOpsFromOption
+
 import org.joda.time.LocalDate
-import scalaz.syntax.equal._
-import tracking.model.EpicStatus
+
+import tracking.model.{ Complete, Epic, EpicStatus, InProgress, NotStarted, Project, Repository }
 
 case class ReportRenderer(repository: Repository) {
   def render: NodeSeq = {
@@ -42,7 +45,7 @@ case class ReportRenderer(repository: Repository) {
 
   private def renderReportBody(project: Project, dates: NonEmptyList[LocalDate]): NodeSeq = {
     val sortedDates = dates.sortWith((x, y) => x.isBefore(y)).reverse
-    renderStatus(project, sortedDates.head)// ++ BurndownRenderer(sortedStatuses)
+    renderStatus(project, sortedDates.head) ++ BurndownRenderer(repository, project)
   }
 
   private def renderStatus(project: Project, date: LocalDate): NodeSeq = {
@@ -72,14 +75,16 @@ case class ReportRenderer(repository: Repository) {
     <h3>
       { name }
     </h3> ++
-    epics.filter(_._2.status === status).toList.toNel.cata(epicTable(name, _), <div>None</div>)
+      epics.filter(_._2.status === status).toList.toNel.cata(epicTable(name, _), <div>None</div>)
 
   private def epicTable(name: String, epics: NonEmptyList[(Project, Epic)]): NodeSeq =
-      epics.list.map{ case (p, e) => (p.identifiers.title, e.identifiers.title) }.sorted.map { case (p, e) =>
+    epics.list.map { case (p, e) => (p.identifiers.title, e.identifiers.title) }.sorted.map {
+      case (p, e) =>
         <div>
-          { p }: { e }
+          { p }
+          :{ e }
         </div>
-      }
+    }
 
   private def renderCompletedEpics(epics: Set[(Project, Epic)]) = epicTable("Completed Epics", epics, Complete)
 
@@ -89,17 +94,19 @@ case class ReportRenderer(repository: Repository) {
     <h3>
       Epics In Progress
     </h3> ++
-    epics.filter(_._2.status === InProgress).toList.toNel.cata(renderIncompleteEpics, <div>None</div>)
+      epics.filter(_._2.status === InProgress).toList.toNel.cata(renderIncompleteEpics, <div>None</div>)
 
   private def renderIncompleteEpics(epics: NonEmptyList[(Project, Epic)]): NodeSeq =
-      epics.map { case (project, epic) =>
+    epics.map {
+      case (project, epic) =>
         <div class="incomplete-epic-row">
           <div class="in-progress-epic-name">
-            {project.identifiers.title}: { epic.identifiers.title }
+            { project.identifiers.title }
+            :{ epic.identifiers.title }
           </div>
           <div class="in-progress-epic-completion">
             { ProgressBarRenderer(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
           </div>
         </div>
-      }.list
+    }.list
 }

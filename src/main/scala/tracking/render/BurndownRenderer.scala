@@ -2,20 +2,64 @@ package tracking.render
 
 import java.text.DecimalFormat
 import java.util.UUID
-import scala.xml.Unparsed
-import tracking.model.ProjectStatus
-import tracking.model.NotStarted
-import tracking.model.InProgress
+
+import scala.annotation.tailrec
+import scala.xml.{ NodeSeq, Unparsed }
 
 import scalaz.NonEmptyList
+import scalaz.syntax.equal.ToEqualOps
+import scalaz.syntax.std.list.ToListOpsFromList
+import scalaz.syntax.std.option.ToOptionOpsFromOption
+
+import org.joda.time.LocalDate
+
+import tracking.model.{ Complete, Project, Repository }
+
+case class BurndownDatum(date: LocalDate, epicsToDo: Int)
 
 case object BurndownRenderer {
-  def apply(data: NonEmptyList[ProjectStatus]) = {
+  type BurndownData = List[BurndownDatum]
+
+  def apply(repository: Repository, project: Project) = eliminateDuplicates(makeData(repository, project)).toNel.cata(drawChart(_), NodeSeq.Empty)
+
+  private def makeData(repository: Repository, project: Project): BurndownData =
+    repository.dates.sortWith((x, y) => x.isBefore(y))
+      .map { date => BurndownDatum(date, repository.reachableEpics(project, date).toList.filter(_._2.status =/= Complete).size) }
+
+  private def drawChart(data: NonEmptyList[BurndownDatum]) = {
     val id = UUID.randomUUID.toString
-    <div id={id} class="burndown"/> ++ <script>{new Unparsed(makeDatesChart(id, data))}</script>
+    <div id={ id } class="burndown"/> ++ <script>{ new Unparsed(makeDatesChart(id, data)) }</script>
   }
 
-  private def makeDatesChart(id: String, data: NonEmptyList[ProjectStatus]) =
+  private def eliminateDuplicates(data: BurndownData) = {
+    @tailrec
+    def recurse(acc: BurndownData, remainingData: BurndownData, previousUnemitted: Option[BurndownDatum]): BurndownData =
+      (acc, remainingData, previousUnemitted) match {
+        // No more data to accumulate and no previously unemitted value. Return what we've accumulated.
+        case (result, Nil, None) => result.reverse
+
+        // No more data to accumulate but there is a previously unemitted value. Prepend the unemitted value and recurse. No unemitted value to carry forward.
+        case (result, Nil, Some(unemitted)) => recurse(unemitted :: result, Nil, None)
+
+        // The first value to accumulate. Accumulate it and recurse. No unemitted data to carry forward.
+        case (Nil, h :: t, _) => recurse(h :: Nil, t, None)
+
+        // Same value as the last one. Recurse without accumulating and keep hold of the unemitted value in case we need it later.
+        case (ah :: at, rh :: rt, _) if (ah.epicsToDo == rh.epicsToDo) => recurse(ah :: at, rt, Some(rh))
+
+        // Not the same value as the last one. Accumulate it and recurse with no unemitted value.
+
+        case (ah :: at, rh :: rt, None) => recurse(rh :: ah :: at, rt, None)
+
+        // Not the same value as the last one and we also have an unemitted value.
+        // Accumulate the unemitted value and the latest value and recurse with no unemitted value.
+        case (ah :: at, rh :: rt, Some(unemitted)) => recurse(rh :: unemitted :: ah :: at, rt, None)
+      }
+
+    recurse(Nil, data, None)
+  }
+
+  private def makeDatesChart(id: String, data: NonEmptyList[BurndownDatum]) =
     s"""|var chart = AmCharts.makeChart("$id", {
        |  "type": "serial",
        |  "theme": "none",
@@ -58,19 +102,17 @@ case object BurndownRenderer {
        |  },
        |  legend: {}
        |});""".stripMargin
-        
-  private def dateData(data: NonEmptyList[ProjectStatus]): String = {
-    val sortedData = data.sorted
-    
+
+  private def dateData(data: NonEmptyList[BurndownDatum]): String = {
     val rows = for {
-      status <- sortedData
+      datum <- data
     } yield s"""|{
-               |  "date": "${status.date.getYear}-${twoDigits(status.date.getMonthOfYear)}-${twoDigits(status.date.getDayOfMonth)}",
-               |  "burndown": ${status.epicsWithStatus(NotStarted).size + status.epicsWithStatus(InProgress).size},
+               |  "date": "${datum.date.getYear}-${twoDigits(datum.date.getMonthOfYear)}-${twoDigits(datum.date.getDayOfMonth)}",
+               |  "burndown": ${datum.epicsToDo},
             |}"""
-               
+
     rows.list.mkString(",\n").stripMargin
   }
-       
+
   private def twoDigits(n: Number) = new DecimalFormat("00").format(n)
 }

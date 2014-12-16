@@ -2,7 +2,7 @@
   "date" : {
     "year" : 2014,
     "month" : 12,
-    "day" : 10
+    "day" : 16
   },
   "epics" : [
         {
@@ -32,7 +32,7 @@
         "id" : "submit",
         "title" : "Submit the opportunity"
       },
-      "status" : "In Progress",
+      "status" : "Complete",
       "composition" : {
         "completedStores" : 1,
         "unstartedStories" : 2,
