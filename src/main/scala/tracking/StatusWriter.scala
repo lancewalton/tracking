@@ -1,9 +1,10 @@
 package tracking
 
-import tracking.repository._
-import tracking.model._
 import org.joda.time.LocalDate
-import argonaut.Argonaut._
+
+import argonaut.Argonaut.ToJsonIdentity
+import tracking.json.projectStatusCodec
+import tracking.model.{Dependency, Epic, EpicComposition, IdentifierAndTitle, InProgress, NotStarted, ProjectStatus}
 
 object StatusWriter extends App {
   val status = ProjectStatus(

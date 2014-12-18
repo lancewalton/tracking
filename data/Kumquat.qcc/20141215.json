@@ -21,7 +21,7 @@
         "id" : "bar",
         "title" : "Do the bar"
       },
-      "status" : "Complete",
+      "status" : "In Progress",
       "composition" : {
         "completedStores" : 1,
         "unstartedStories" : 2,
