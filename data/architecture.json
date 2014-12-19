@@ -1,0 +1,86 @@
+{
+  "nodes" : [
+    {
+      "id" : "Self-Serve",
+      "description" : "Self-Serve",
+      "location" : {
+        "x" : 150,
+        "y" : 150
+      }
+    },
+    {
+      "id" : "risk",
+      "description" : "Risk",
+      "location" : {
+        "x" : 250,
+        "y" : 100
+      }
+    },
+    {
+      "id" : "ao",
+      "description" : "Account Opening",
+      "location" : {
+        "x" : 250,
+        "y" : 150
+      }
+    },
+    {
+      "id" : "qcc",
+      "description" : "QCC",
+      "location" : {
+        "x" : 250,
+        "y" : 200
+      }
+    },
+    {
+      "id" : "scrn",
+      "description" : "Screening",
+      "location" : {
+        "x" : 250,
+        "y" : 250
+      }
+    },
+    {
+      "id" : "faac",
+      "description" : "Ful. API Anti-Corruption",
+      "location" : {
+        "x" : 350,
+        "y" : 150
+      }
+    },
+    {
+      "id" : "cc",
+      "description" : "Country Classification",
+      "location" : {
+        "x" : 350,
+        "y" : 100
+      }
+    }
+  ],
+  "relationships" : [
+    {
+      "from" : "Self-Serve",
+      "to" : "ao"
+    },
+    {
+      "from" : "Self-Serve",
+      "to" : "risk"
+    },
+    {
+      "from" : "Self-Serve",
+      "to" : "qcc"
+    },
+    {
+      "from" : "Self-Serve",
+      "to" : "scrn"
+    },
+    {
+      "from" : "risk",
+      "to" : "cc"
+    },
+    {
+      "from" : "ao",
+      "to" : "faac"
+    }
+  ]
+}

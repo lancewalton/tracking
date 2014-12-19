@@ -1,22 +1,20 @@
 package tracking.repository
 
 import java.io.{File, FilenameFilter}
-
 import scala.io.Source
-
 import scalaz.std.list._
 import scalaz.syntax.applicative.ToApplyOpsUnapply
 import scalaz.syntax.traverse.ToTraverseOps
 import scalaz.syntax.validation.ToValidationOps
-
 import argonaut.Argonaut.StringToParseWrap
 import tracking.json.projectStatusCodec
 import tracking.model.{IdentifierAndTitle, Project, ProjectStatus}
+import java.io.FileFilter
 
 object RepositoryLoader {
   def apply(directory: File): LoadedRepository[List[Project]] =
     directory
-      .listFiles.toList
+      .listFiles(new FileFilter() { def accept(file: File) = file.isDirectory }).toList
       .map(loadProject(_))
       .sequenceU
 
