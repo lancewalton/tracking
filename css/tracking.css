@@ -46,8 +46,32 @@ div.in-progress-epic-completion div.progress{
 }
 
 div.burndown {
-  clear: both;
   width: 50%;
-  margin-left: 25%;
   height: 500px;
+}
+
+svg.architecture {
+  float: left;
+  width: 500px;
+  height: 500px;
+}
+
+svg.architecture line {
+stroke: #666;
+opacity: 0.6;
+stroke-width: 1.5px;
+}
+
+svg.architecture circle {
+stroke: #fff;
+opacity: 1.0;
+stroke-width: 1.5px;
+fill: #3182bd;
+}
+
+svg.architecture text {
+font: 7px serif;
+opacity: 0.6;
+pointer-events: none;
+fill: #3182bd;
 }

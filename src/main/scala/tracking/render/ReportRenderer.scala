@@ -45,7 +45,7 @@ case class ReportRenderer(repository: Repository) {
 
   private def renderReportBody(project: Project, dates: NonEmptyList[LocalDate]): NodeSeq = {
     val sortedDates = dates.sortWith((x, y) => x.isBefore(y)).reverse
-    renderStatus(project, sortedDates.head) ++ BurndownRenderer(repository, project)
+    renderStatus(project, sortedDates.head) ++ <div class="charts">{GraphRenderer() ++ BurndownRenderer(repository, project)}</div>
   }
 
   private def renderStatus(project: Project, date: LocalDate): NodeSeq = {
