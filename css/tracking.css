@@ -85,13 +85,13 @@ fill: #3182bd;
 }
 
 .not-started {
-  fill: red;
+  fill: #d9534f;
 }
 
 .in-progress {
-  fill: yellow;
+  fill: f0ad4e;
 }
 
 .complete {
-  fill: green;
+  fill: #5cb85c;
 }
