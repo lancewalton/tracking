@@ -35,25 +35,25 @@ case object BurndownRenderer {
     @tailrec
     def recurse(acc: BurndownData, remainingData: BurndownData, previousUnemitted: Option[BurndownDatum]): BurndownData =
       (acc, remainingData, previousUnemitted) match {
-        // No more data to accumulate and no previously unemitted value. Return what we've accumulated.
+        // No more data to accumulate and no previously unaccumulated value. Return what we've accumulated.
         case (result, Nil, None) => result.reverse
 
-        // No more data to accumulate but there is a previously unemitted value. Prepend the unemitted value and recurse. No unemitted value to carry forward.
-        case (result, Nil, Some(unemitted)) => recurse(unemitted :: result, Nil, None)
+        // No more data to accumulate but there is a previously unaccumulated value. Prepend the unaccumulated value and recurse. No unaccumulated value to carry forward.
+        case (result, Nil, Some(unaccumulated)) => recurse(unaccumulated :: result, Nil, None)
 
-        // The first value to accumulate. Accumulate it and recurse. No unemitted data to carry forward.
+        // The first value to accumulate. Accumulate it and recurse. No unaccumulated data to carry forward.
         case (Nil, h :: t, _) => recurse(h :: Nil, t, None)
 
-        // Same value as the last one. Recurse without accumulating and keep hold of the unemitted value in case we need it later.
+        // Same value as the last one. Recurse without accumulating and keep hold of the unaccumulated value in case we need it later.
         case (ah :: at, rh :: rt, _) if (ah.epicsToDo == rh.epicsToDo) => recurse(ah :: at, rt, Some(rh))
 
-        // Not the same value as the last one. Accumulate it and recurse with no unemitted value.
+        // Not the same value as the last one. Accumulate it and recurse with no unaccumulated value.
 
         case (ah :: at, rh :: rt, None) => recurse(rh :: ah :: at, rt, None)
 
-        // Not the same value as the last one and we also have an unemitted value.
-        // Accumulate the unemitted value and the latest value and recurse with no unemitted value.
-        case (ah :: at, rh :: rt, Some(unemitted)) => recurse(rh :: unemitted :: ah :: at, rt, None)
+        // Not the same value as the last one and we also have an unaccumulated value.
+        // Accumulate the unaccumulated value and the latest value and recurse with no unaccumulated value.
+        case (ah :: at, rh :: rt, Some(unaccumulated)) => recurse(rh :: unaccumulated :: ah :: at, rt, None)
       }
 
     recurse(Nil, data, None)
