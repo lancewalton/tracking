@@ -57,21 +57,41 @@ svg.architecture {
 }
 
 svg.architecture line {
-stroke: #666;
-opacity: 0.6;
-stroke-width: 1.5px;
+stroke: black;
+opacity: 1;
+stroke-width: 1px;
 }
 
 svg.architecture circle {
-stroke: #fff;
+stroke: black;
 opacity: 1.0;
-stroke-width: 1.5px;
+stroke-width: 1px;
 fill: #3182bd;
+
 }
 
 svg.architecture text {
 font: 7px serif;
-opacity: 0.6;
+opacity: 1;
 pointer-events: none;
 fill: #3182bd;
+}
+
+.pie-chart-segment {
+  fill: red;
+  stroke: black;
+  stroke-width: 1px;
+  stroke-linejoin: round;
+}
+
+.not-started {
+  fill: red;
+}
+
+.in-progress {
+  fill: yellow;
+}
+
+.complete {
+  fill: green;
 }
