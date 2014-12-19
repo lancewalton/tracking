@@ -6,7 +6,7 @@ div.all-epics {
   width: 100%;
 }
 
-div.all-epics div {
+div.all-epics > div {
   float: left;
 }
 
@@ -26,6 +26,10 @@ div.incomplete-epics-list {
 
 div.incomplete-epic-row {
   width: 100%;
+}
+
+div.incomplete-epic-row > div {
+  float: left;
 }
 
 div.in-progress-epic-name {

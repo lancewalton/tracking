@@ -80,10 +80,7 @@ case class ReportRenderer(repository: Repository) {
   private def epicTable(name: String, epics: NonEmptyList[(Project, Epic)]): NodeSeq =
     epics.list.map { case (p, e) => (p.identifiers.title, e.identifiers.title) }.sorted.map {
       case (p, e) =>
-        <div>
-          { p }
-          :{ e }
-        </div>
+        <div>{ p } : { e }</div>
     }
 
   private def renderCompletedEpics(epics: Set[(Project, Epic)]) = epicTable("Completed Epics", epics, Complete)
@@ -100,10 +97,7 @@ case class ReportRenderer(repository: Repository) {
     epics.map {
       case (project, epic) =>
         <div class="incomplete-epic-row">
-          <div class="in-progress-epic-name">
-            { project.identifiers.title }
-            :{ epic.identifiers.title }
-          </div>
+          <div class="in-progress-epic-name">{ project.identifiers.title } : { epic.identifiers.title }</div>
           <div class="in-progress-epic-completion">
             { ProgressBarRenderer(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
           </div>
