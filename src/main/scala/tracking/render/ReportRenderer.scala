@@ -30,7 +30,7 @@ case class ReportRenderer(repository: Repository) {
   }
 
   private def renderProjects: NodeSeq =
-    repository.projects.sortBy(_.identifiers.title).map(renderProject(_))
+    repository.projects.sortBy(Project.titleLens.get).map(renderProject(_))
 
   private def renderProject(project: Project): Elem =
     <div>
@@ -38,7 +38,7 @@ case class ReportRenderer(repository: Repository) {
     </div>
 
   private def renderProjectBody(project: Project): NodeSeq =
-    renderTitle(project.identifiers.title) ++ renderReportBody(project)
+    renderTitle(Project.titleLens.get(project)) ++ renderReportBody(project)
 
   private def renderReportBody(project: Project): NodeSeq =
     repository.dates.toNel.cata(renderReportBody(project, _), <h2>No data</h2>)
@@ -79,7 +79,7 @@ case class ReportRenderer(repository: Repository) {
       epics.filter(_._2.status === status).toList.toNel.cata(epicTable(name, _), <div>None</div>)
 
   private def epicTable(name: String, epics: NonEmptyList[(Project, Epic)]): NodeSeq =
-    epics.list.map { case (p, e) => (p.identifiers.title, e.identifiers.title) }.sorted.map {
+    epics.list.map { case (p, e) => (Project.titleLens.get(p), e.identifiers.title) }.sorted.map {
       case (p, e) =>
         <div>{ p } : { e }</div>
     }
@@ -98,7 +98,7 @@ case class ReportRenderer(repository: Repository) {
     epics.map {
       case (project, epic) =>
         <div class="incomplete-epic-row">
-          <div class="in-progress-epic-name">{ project.identifiers.title } : { epic.identifiers.title }</div>
+          <div class="in-progress-epic-name">{ Project.titleLens.get(project) } : { epic.identifiers.title }</div>
           <div class="in-progress-epic-completion">
             { ProgressBarRenderer(epic.composition.fold(0)(_.completedStories), epic.composition.fold(1)(_.storiesInProgress), epic.composition.fold(0)(_.unstartedStories)) }
           </div>

@@ -8,10 +8,13 @@ import tracking.model.architecture.Node
 import tracking.model.architecture.Location
 import tracking.model.architecture.Relationship
 import tracking.model.architecture.Architecture
+import tracking.model.Meta
 
 package object json {
   implicit val identifierWithTitleCodec = casecodec2(IdentifierAndTitle.apply, IdentifierAndTitle.unapply)("id", "title")
 
+  implicit val metaCodec = casecodec2(Meta.apply, Meta.unapply)("identifiers", "function")
+  
   implicit val epicStatusCodec = CodecJson[EpicStatus](
     (_: EpicStatus) match {
       case NotStarted => "Not Started".asJson

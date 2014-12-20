@@ -33,7 +33,7 @@ object GraphRenderer {
         .reachableEpics(project, date)
         .groupBy(_._1)
         .map { case (p, pe) => (p, pe.map(_._2)) }
-        .map { case (p, es) => (p.identifiers.id, PieChartData(countEpicsWithStatus(es, Complete), countEpicsWithStatus(es, InProgress), countEpicsWithStatus(es, NotStarted))) }
+        .map { case (p, es) => (Project.idLens.get(p), PieChartData(countEpicsWithStatus(es, Complete), countEpicsWithStatus(es, InProgress), countEpicsWithStatus(es, NotStarted))) }
     
     val selfServe = Node("Self-Serve", "Self-Serve", "", Location(150, 150))
     val durian = Node("risk", "Durian", "Risk", Location(250,100))

@@ -12,7 +12,7 @@ import scalaz.syntax.validation._
 case class Repository(projects: List[Project]) {
   def dates = projects.flatMap { _.statuses.map { _.date } }
   
-  def project(id: ProjectId): Option[Project] = projects.find(_.identifiers.id === id)
+  def project(id: ProjectId): Option[Project] = projects.find(_.meta.identifiers.id === id)
   
   def reachableEpics(project: Project, date: LocalDate): Set[(Project, Epic)] =
     (for {
@@ -37,10 +37,10 @@ object Repository {
     validateProjectNames(projects) ::: validateProjectIds(projects) ::: (projects >>= validateProject) ::: validateDependencies(projects).toList
     
   private def validateProjectNames(projects: List[Project]): List[RepositoryError] =
-    validateUniqueAndNonEmptyString(projects, (_: Project).identifiers.title, DuplicateProjectName.apply _, EmptyProjectName(_: Project))
+    validateUniqueAndNonEmptyString(projects, Project.titleLens.get, DuplicateProjectName.apply _, EmptyProjectName(_: Project))
   
   private def validateProjectIds(projects: List[Project]): List[RepositoryError] =
-    validateUniqueAndNonEmptyString(projects, (_: Project).identifiers.id, DuplicateProjectId.apply _, EmptyProjectId(_: Project))
+    validateUniqueAndNonEmptyString(projects, Project.idLens.get, DuplicateProjectId.apply _, EmptyProjectId(_: Project))
   
   private def validateProject(project: Project): List[RepositoryError] =
     validateAttributeIsUnique(project.statuses, (_: ProjectStatus).date, (d: LocalDate) => DuplicateReportStatusDate(project, d)) :::
@@ -60,7 +60,7 @@ object Repository {
     } yield validation
     
   private def validateDependency(projects: List[Project], project: Project, status: ProjectStatus, epic: Epic, dependency: Dependency): Option[RepositoryError] =
-    projects.find(_.identifiers.id === dependency.projectId)
+    projects.find(Project.idLens.get(_) === dependency.projectId)
       .fold(Option(DependencyRefersToUnknownProject(project, status, epic, dependency).asInstanceOf[RepositoryError])) { p =>
         validateDependency(project, status, epic, dependency, p)
       }

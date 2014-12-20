@@ -7,9 +7,13 @@ import scalaz.syntax.applicative.ToApplyOpsUnapply
 import scalaz.syntax.traverse.ToTraverseOps
 import scalaz.syntax.validation.ToValidationOps
 import argonaut.Argonaut.StringToParseWrap
-import tracking.json.projectStatusCodec
+import tracking.json.{metaCodec, projectStatusCodec}
 import tracking.model.{IdentifierAndTitle, Project, ProjectStatus}
 import java.io.FileFilter
+import scalaz.syntax.equal._
+import scalaz.std.string._
+import tracking.model.Meta
+import scalaz.ValidationNel
 
 object RepositoryLoader {
   def apply(directory: File): LoadedRepository[List[Project]] =
@@ -18,26 +22,28 @@ object RepositoryLoader {
       .map(loadProject(_))
       .sequenceU
 
-  private def loadProject(directory: File) =
-    (extractNameAndId(directory) |@| loadProjectStatuses(directory))((nid, ss) => Project(nid, ss))
+  private def loadProject(directory: File) = (loadMeta(directory) |@| loadProjectStatuses(directory))((meta, ss) => Project(meta, ss))
 
-  private def extractNameAndId(directory: File) =
-    directory.getName.split('.').toList match {
-      case name :: Nil if (!name.isEmpty)       => IdentifierAndTitle(name, name).successNel[RepositoryLoadError]
-      case name :: id :: Nil if (!name.isEmpty && !id.isEmpty) => IdentifierAndTitle(id, name).successNel[RepositoryLoadError]
-      case _                 => ProjectDirectoryNameParseFailure(directory).failureNel[IdentifierAndTitle]
-    }
+  private def loadMeta(directory: File): ValidationNel[RepositoryLoadError, Meta] = {
+    val file = new File(directory, "meta.json")
+    Source
+      .fromFile(file)
+      .mkString
+      .decodeValidation[Meta]
+      .leftMap { ProblemLoadingMetaFile(file, _) }
+      .toValidationNel
+  }
 
   private def loadProjectStatuses(directory: File) =
     directory
-      .listFiles(new FilenameFilter() { def accept(directory: File, filename: String) = filename.endsWith(".json") })
+      .listFiles(new FilenameFilter() { def accept(directory: File, filename: String) = filename.endsWith(".json") && filename =/= "meta.json" })
       .toList
       .map { loadProjectStatus(_) }
       .sequenceU
 
   private def loadProjectStatus(file: File) =
     Source
-      .fromFile(file.getAbsolutePath)
+      .fromFile(file)
       .mkString
       .decodeValidation[ProjectStatus]
       .leftMap { msg => ProblemLoadingProjectStatusFile(file, msg) }

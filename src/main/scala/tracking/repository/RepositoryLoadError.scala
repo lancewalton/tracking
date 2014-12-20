@@ -4,5 +4,5 @@ import java.io.File
 
 sealed trait RepositoryLoadError
 
-case class ProjectDirectoryNameParseFailure(file: File) extends RepositoryLoadError
 case class ProblemLoadingProjectStatusFile(file: File, parseError: String) extends RepositoryLoadError
+case class ProblemLoadingMetaFile(file: File, parseError: String) extends RepositoryLoadError
