@@ -8,7 +8,7 @@ import scalaz.syntax.traverse.ToTraverseOps
 import scalaz.syntax.validation.ToValidationOps
 import argonaut.Argonaut.StringToParseWrap
 import tracking.json.{metaCodec, projectStatusCodec}
-import tracking.model.{IdentifierAndTitle, Project, ProjectStatus}
+import tracking.model.{Project, ProjectStatus}
 import java.io.FileFilter
 import scalaz.syntax.equal._
 import scalaz.std.string._
@@ -19,10 +19,10 @@ object RepositoryLoader {
   def apply(directory: File): LoadedRepository[List[Project]] =
     directory
       .listFiles(new FileFilter() { def accept(file: File) = file.isDirectory }).toList
-      .map(loadProject(_))
+      .map(loadProject)
       .sequenceU
 
-  private def loadProject(directory: File) = (loadMeta(directory) |@| loadProjectStatuses(directory))((meta, ss) => Project(meta, ss))
+  private def loadProject(directory: File) = (loadMeta(directory) |@| loadProjectStatuses(directory))(Project.apply)
 
   private def loadMeta(directory: File): ValidationNel[RepositoryLoadError, Meta] = {
     val file = new File(directory, "meta.json")
@@ -38,7 +38,7 @@ object RepositoryLoader {
     directory
       .listFiles(new FilenameFilter() { def accept(directory: File, filename: String) = filename.endsWith(".json") && filename =/= "meta.json" })
       .toList
-      .map { loadProjectStatus(_) }
+      .map(loadProjectStatus)
       .sequenceU
 
   private def loadProjectStatus(file: File) =
